@@ -1,7 +1,7 @@
 00  !i enum      !3 -> 0 1 2   !-3 -> -3 -2 -1
    i!i div       -10!1234 -> 123
    i!i mod       10!1234 -> 4
-01  #x length    #"abc" -> 3   #4 -> 1
+01  #x length    #!4 -> 4   #4 -> 1
    i#X nyi
 02  $  nyi
 03  %  nyi

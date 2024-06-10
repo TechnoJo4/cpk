@@ -1,3 +1,4 @@
+#include <complex.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,12 +8,6 @@ S struct {//parse state
 	const B* curr;const B* file;//lexer
 	K* n; B* nt;//parser
 } ps;
-
-S void init(const void* file) {
-	ps.file = file; ps.curr = file;
-	ps.n = vec(128);
-	ps.nt = malloc(128);
-}
 
 enum { N_N, N_M, N_D, N_A, CLOSE, SEMI, ERR };
 
@@ -26,7 +21,7 @@ enum { N_N, N_M, N_D, N_A, CLOSE, SEMI, ERR };
 #define CS 64
 #define CH 128
 S const B cls[256] = {
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CC, 0, 0, 0, 0, 0,
+	CC, 0, 0, 0, 0, 0, 0, 0, 0, 0, CC, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, CV, 0, CV, CV, CV, CV, CA, CO, CC|CS, CV, CV, CV, CV, CV, CA,// !"#$%&'()*+,-./
 	CD|CH, CD|CH, CD|CH, CD|CH, CD|CH, CD|CH, CD|CH, CD|CH, CD|CH, CD|CH, CV, CC, CV, CV, CV, CV,//0-9:;<=>?
@@ -44,7 +39,17 @@ S const B verbs[96] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 17, 0, 18, 0//p-z{|}~\x7f
 };
 
-S void expr(int i, B close);
+S bool expr(int i, B close);
+
+S int obj(int i, B close, K t) {
+#define GROWCHECK if (!(j & j-1)) { K* b = vec(2*j); I(k,j) b[k] = a[k]; a = b; }//grow each 2^n
+	K* a = vec(2); a[0] = t; int j = 1;
+	while (expr(i, close)) { GROWCHECK; a[j] = ps.n[i]; ++j; } GROWCHECK; a[j] = ps.n[i]; ++j;
+	L(a) = j; ps.n[i] = (K)a;
+	return j;
+#undef GROWCHECK
+}
+
 S B item(int i, B close) {
 	B c; int class;
 #define MOVE c = *(ps.curr++); class = cls[c]
@@ -89,22 +94,15 @@ S B item(int i, B close) {
 
 	if (class & CO) {
 		if (c == '(') {
-			expr(i, ')');
-			if (L(ps.n[i]) == 2) {//(x)
-				K k = PK(ps.n[i])[1];
-				ps.n[i] = k;
-			} else {//(;)
-				PK(ps.n[i])[0] = PSl;
-			}
+			int j = obj(i, ')', PSl);//(;)
+			if (j == 2) { ps.n[i] = ((K*)ps.n[i])[1]; }//(x)
 			return N_N;
 		}
 		if (c == '{') {
-			expr(i, '}');
-			PK(ps.n[i])[0] = PSf;
+			obj(i, '}', PSf);
 			return N_D;
 		}
-		expr(i, ']');
-		PK(ps.n[i])[0] = PSp;
+		obj(i, ']', PSp);
 		return N_N;
 	}
 
@@ -120,6 +118,7 @@ S B item(int i, B close) {
 	return ERR;
 #undef MOVE
 #undef PEEK
+#undef LAST
 }
 
 struct sr { B s; B r; };//strength, result
@@ -166,7 +165,7 @@ S void bind(struct sr cr, int ic, int ir) {
 	ps.n[ic] = (K)v;
 }
 
-S void expr(int i0, B close) {
+S bool expr(int i0, B close) {
 	int i = i0; B t;
 
 	do {
@@ -176,7 +175,7 @@ S void expr(int i0, B close) {
 
 	if (t == ERR) {//TODO
 		puts("'parse");
-		return;
+		return 0;
 	}
 
 	--i;
@@ -213,16 +212,13 @@ S void expr(int i0, B close) {
 		--n;
 	}
 
-	K* r = vec(2);//TODO ;
-	r[1] = ps.n[i0];
-	ps.n[i0] = (K)r;
-
-	return;
+	return t == SEMI;
 }
 
 K parse(const char* file) {
-	init((const void*)file);
-	expr(0, 0);
-	PK(ps.n[0])[0] = PSp;
+	ps.file = (B*)file; ps.curr = (B*)file;
+	ps.n = vec(128);
+	ps.nt = malloc(128);
+	obj(0, 0, PSp);
 	return ps.n[0];
 }
