@@ -50,7 +50,7 @@ int main() {
 		// compile & run
 		K* c = compile(node, NULL);
 		puts("bc:");
-		B* b = (B*)c[0];
+		B* b = (B*)c[2];
 		dbc(b);
 		puts("vm:");
 		vmentry(c);

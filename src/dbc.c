@@ -9,8 +9,8 @@
 #define C16(a,x) C8(a,x)C8(a+8,x)
 #define C32(a,x) C16(a,x)C16(a+16,x)
 
-static const char* names = "TRAPRETNxNILyNILxKSTyKSTxTOyyTOxSWAPTRCExGETyGETxSETySETCDBVCMBVxKBVCDBX";
-static const B nameidx[256] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,C32(OP_CDBV,14)C32(OP_CMBV,15)C32(OP_xKBV,16)C32(OP_CDBX,17)};
+static const char* names = "TRAPRETNxNILyNILxKSTyKSTxTOyyTOxSWAPTRCExGETyGETxSETySETxSTAySTASTAxSTAyCDBVCMBVxKBVCDBX";
+static const B nameidx[256] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,C32(OP_CDBV,18)C32(OP_CMBV,19)C32(OP_xKBV,20)C32(OP_CDBX,21)};
 static const B operands[256] = {0,C2(OP_xKST,1)C(OP_xTOy,0)C4(OP_xGET,1)C32(OP_CDBV,0)C32(OP_CDBX,1)0};
 static const B showbyte[256] = {0,C32(OP_CDBV,1)C32(OP_CMBV,1)C32(OP_xKBV,1)C32(OP_CDBX,1)};
 

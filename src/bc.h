@@ -18,16 +18,20 @@ enum {           //xx       OPER: description of operation
     OP_yGET,     //0B    xx yGET: y:vars[xx]
     OP_xSET,     //0C    xx xSET: vars[xx]:x
     OP_ySET,     //0D    xx ySET: vars[xx]:y
-    OP_CDBV=0x10,//1x|2x    CDBV: call verb
-    OP_CMBV=0x30,//3x|4x    CMBV: call monad
-    OP_xKBV=0x50,//5x|6x    xKBV: x:verb
-    OP_CDBX=0x70,//7x|8x xx CDBX: y:x; x:consts[xx]; call verb
+    OP_xSTA,     //0E       xSTA: x:pop
+    OP_ySTA,     //0F       ySTA: y:pop
+    OP_STAx,     //10       STAx: push x
+    OP_STAy,     //11       STAy: push y
+    OP_CDBV=0x20,//2x|3x    CDBV: call verb
+    OP_CMBV=0x40,//4x|5x    CMBV: call monad
+    OP_xKBV=0x60,//6x|7x    xKBV: x:verb
+    OP_CDBX=0x80,//8x|9x xx CDBX: y:x; x:consts[xx]; call verb
 };
 
-// A chunk is b,k,c ([0] = bytecode, [1]=constants, [2]=children)
+// A chunk is b,k,c ([0]=(nargs<<8)|nvars, [1]=constants, [2]=bytecode)
 K* compile(K t, K* parent);
 
-void vm(K x, K y, K* c, B* b);
+void vm(K x, K y, K* c, K* s, B* b);
 void vmentry(K* chunk);
 
 #endif

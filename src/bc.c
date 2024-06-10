@@ -8,9 +8,7 @@
 struct cs {//compile state
     K* cur; K* p;
     B* b; B* end;
-    int arity;
-
-    int nvar; int maxnvar;
+    int arity; K* vars;
 };
 
 S B addconst(K t, struct cs* s) {
@@ -53,12 +51,10 @@ S void expr(K t, struct cs* s) {
                 O(OP_CDBX+BK(n0));
                 O(addconst(a[1], s));
             } else {
-                B v = s->nvar++;
                 expr(a[2], s);
-                O(OP_xSET); O(v);
+                O(OP_STAx);
                 expr(a[1], s);
-                assert(v == --s->nvar);
-                O(OP_yGET); O(v);
+                O(OP_ySTA);
                 O(OP_CDBV+BK(n0));
             }
             break;
@@ -75,7 +71,7 @@ S void expr(K t, struct cs* s) {
 
 K* compile(K t, K* parent) {
     K* c = vec(4); K* b = vec(256);
-    c[0] = (K)b; c[1] = 0; c[2] = 0; c[3] = 0;
+    c[0] = 0; c[1] = 0; c[2] = (K)b; c[3] = 0;
     struct cs state = {c, parent, (B*)b, ((B*)b)+(Ksz*256), 0, 0};
     expr(t, &state);
     *(state.b++) = OP_RETN;

@@ -4,7 +4,7 @@
 #include "src/common.h"
 
 #define n(_v) v_##_v##_dispatch
-#define V(v_) void n(v_)(K x, K y, K* c, B* b)
+#define V(v_) void n(v_)(K x, K y, K* c, K* s, B* b)
 
 V(m0);  V(d0);  // !
 V(m1);  V(d1);  // #

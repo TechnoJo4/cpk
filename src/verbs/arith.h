@@ -12,7 +12,7 @@
 
 #define dispatch_arith \
     if (TV(x) && TI(x) == Ti8) { \
-        if (!TV(y)) retail Mdispatch(V)(y, x, c, b); \
+        if (!TV(y)) retail Mdispatch(V)(y, x, c, s, b); \
         else if (TI(y) == Ti8) C(I_I) } \
     if (T(x) == Ti4) { \
         if (T(y) == Ti4) C(i4_i4) \
