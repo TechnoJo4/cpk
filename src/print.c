@@ -44,7 +44,7 @@ S int addtostr(C* str, int i, K val) {
 	C b;
 	if (TV(val)) {
 		if (L(val) == 1) {
-			(b = chksz(str, i+2))[i] = ',';
+			(b = chksz(str, i+4))[i] = ',';
 			return item(str, i+1, (K*)val, TI(val));
 		}
 

@@ -27,12 +27,16 @@ $
 .
 ```
 
-on style: there are some macros to make working in c more bearable. but i can't read atw-style c, so don't expect that.
+on style: it's not atw-style, but there are some macros to make working in c more bearable.
 
 ### nyi
 
 lambda adverbs vars refcount alloc
 
-parse: string symbol compose
+parse: string symbol compose m-expr
 
-compile, verbs: basically everything
+verbs: basically everything (see ref sheet above or doc/verbs.txt)
+
+compiler: fun list >2-arity
+
+misc todo: switch to a better build system, rewrite print
