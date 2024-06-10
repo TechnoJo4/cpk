@@ -33,6 +33,6 @@ on style: there are some macros to make working in c more bearable. but i can't 
 
 lambda adverbs vars refcount alloc
 
-parse: string symbol progn/list/fun compose
+parse: string symbol compose
 
 compile, verbs: basically everything
