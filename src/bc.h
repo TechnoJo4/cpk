@@ -22,6 +22,7 @@ enum {           //xx       OPER: description of operation
     OP_ySTA,     //0F       ySTA: y:pop
     OP_STAx,     //10       STAx: push x
     OP_STAy,     //11       STAy: push y
+    OP_CALL,     //12       CALL: x:x@y /temporary?
     OP_CDBV=0x20,//2x|3x    CDBV: call verb
     OP_CMBV=0x40,//4x|5x    CMBV: call monad
     OP_xKBV=0x60,//6x|7x    xKBV: x:verb

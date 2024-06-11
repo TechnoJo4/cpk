@@ -28,7 +28,8 @@ void vm(K x, K y, K* c, K* s, B* b) {
     B o = *(b++);
     switch (o) {
     C(OP_TRAP) default: puts("'trap"); return;
-    C(OP_RETN) { K str = stringify(x); printf("'retn x=%s\n", (const char*)PK(str)); return; }
+    C(OP_RETN) if (!c[-2]) { K str = stringify(x); printf("'retn x=%s\n", (const char*)PK(str)); return; }//temporary
+               else { retail vm(x, y, (K*)c[-3], (K*)c[-2], (B*)c[-4]); }
     C(OP_xNIL) vmcont(0, y);
     C(OP_yNIL) vmcont(x, 0);
     C(OP_xKST) vmcont(((K**)c[-1])[1][*(b++)], y);
@@ -45,6 +46,14 @@ void vm(K x, K y, K* c, K* s, B* b) {
     C(OP_ySTA) y = *(s--); vmcont(x, y);
     C(OP_STAx) *(++s) = x; vmcont(x, y);
     C(OP_STAy) *(++s) = y; vmcont(x, y);
+    C(OP_CALL) {
+        K* d = PK(x);
+        *(++s) = (K)b;
+        *(++s) = (K)c;
+        ++s; *s = (K)s;
+        *(++s) = (K)d;
+        retail vm(y, y, s + 1, s, ((B**)d)[2]);
+    }
     C32(OP_CDBV) retail dyads[o-OP_CDBV](x, y, c, s, b);
     C32(OP_CMBV) retail monads[o-OP_CMBV](x, y, c, s, b);
     C32(OP_xKBV) vmtail(x, y);//nyi
@@ -52,7 +61,7 @@ void vm(K x, K y, K* c, K* s, B* b) {
     }
 }
 
-static K stack[2048] = {0};
+S K stack[2048] = {0};
 void vmentry(K* chunk) {
     stack[0] = 0;
     stack[1] = (K)chunk;

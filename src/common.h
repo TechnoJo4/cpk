@@ -34,6 +34,8 @@ typedef int8_t i1;
 #define Ti8 ((K)5)//boxed
 #define Tf8 ((K)6)
 
+#define Tfun ((K)8)
+
 #define Tdict ((K)20)
 #define Tverb ((K)16)
 #define Tmonad ((K)17)
