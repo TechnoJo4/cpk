@@ -35,6 +35,8 @@ S void expr(K t, struct cs* s) {
         case PSl: E;//list
         case PSf://fun
             if ((K)s->b != s->cur[2]) { O(OP_xKST); O(addconst(KT(Tfun) | (K)compile(t, s->cur), s)); break; }
+            else if (L(t) == 2) {//TODO recognize x y xfy xfx yfx yfy
+            }
         case PSp://progn
             for (i4 i = 1; i < L(t); ++i) expr(a[i], s);
             break;

@@ -46,7 +46,7 @@ void vm(K x, K y, K* c, K* s, B* b) {
     C(OP_ySTA) y = *(s--); vmcont(x, y);
     C(OP_STAx) *(++s) = x; vmcont(x, y);
     C(OP_STAy) *(++s) = y; vmcont(x, y);
-    C(OP_CALL) {
+    C(OP_CALL) {//todo unfuck
         K* d = PK(x);
         *(++s) = (K)b;
         *(++s) = (K)c;

@@ -98,18 +98,14 @@ S B item(int i, B close) {
 			if (j == 2) { ps.n[i] = ((K*)ps.n[i])[1]; }//(x)
 			return N_N;
 		}
-		if (c == '{') {
-			obj(i, '}', PSf);
-			return N_D;
-		}
-		obj(i, ']', PSp);
-		return N_N;
+		if (c == '{') { obj(i, '}', PSf); return N_N; }
+		obj(i, ']', PSp); return N_N;
 	}
 
 	if (class & CL) {
-		const B* start = ps.curr-1;
-		do { MOVE; } while (class & (CL|CD));
-		ps.n[i] = ((K)start) | KT(Tchar);//TODO copy
+		K v = 0;
+		do { v = (v << 8) | c; MOVE; } while (class & (CL|CD));
+		ps.n[i] = v | KT(TPsym);
 		return N_N;
 	}
 
@@ -133,39 +129,30 @@ S void bind(struct sr cr, int ic, int ir) {
 	//TODO error if cr.r==ERR
 	ps.nt[ic] = cr.r;
 
-	if (cr.r && cr.s < 2) {
-		printf("compose nyi");
-	}
+	if (cr.r && cr.s < 2) err(nyi);
 
 	K node = ps.n[ic];
-	if (TV(node) && L(node) >= 3) {
-		K* v = PK(node);
-		if (L(v) == 3) {
-			if (!v[2]) {
-				v[2] = ps.n[ir];
-				return;
-			}
-		} else {//TODO find hole
-			printf("hole nyi");
+	if (TV(node) && L(node) == 3) {
+		if (!((K*)node)[2]) {
+			((K*)node)[2] = ps.n[ir];
+			return;
 		}
 	}
 
 	K* v;
-	if (cr.r == 1) {
-		v = vec(3);
-		v[0] = ps.n[ir]; v[1] = node;
-		v[2] = 0;
+	if (cr.r == 1) {//todo unfuck
+		v = vec(3); v[0] = ps.n[ir]; v[1] = node; v[2] = 0;
 	} else if (cr.r == 2) {
-		v = vec(2);
-		v[0] = ps.n[ir]; v[1] = node;
+		v = vec(2); v[0] = ps.n[ir]; v[1] = node;
 	} else {
-		v = vec(2);
-		v[0] = node; v[1] = ps.n[ir];
+		v = vec(2); v[0] = node; v[1] = ps.n[ir];
 	}
 	ps.n[ic] = (K)v;
 }
 
 S bool expr(int i0, B close) {
+#define MOVE --ic; if (ic <= i0) break; ir = ic+d[ic-i0]; l = ps.nt[ic-1]
+#define CR c = ps.nt[ic]; r = ps.nt[ir]
 	int i = i0; B t;
 
 	do {
@@ -174,36 +161,24 @@ S bool expr(int i0, B close) {
 	} while (t < CLOSE);
 
 	if (t == ERR) {//TODO
-		puts("'parse");
-		return 0;
+		puts("'parse"); return 0;
 	}
 
-	--i;
-	int n = i-i0;
+	int n = (--i) - i0;
 	u2 d[n]; I(j,n) d[j] = 1;
 
 	if (n > 2) {
 		int ic,ir; B l,c,r;
 		ic = i - 2; ir = i - 1;
-		l = ps.nt[ic-1]; c = ps.nt[ic]; r = ps.nt[ir];
+		l = ps.nt[ic-1]; CR;
 		while (ic > i0) {
-			struct sr lc = pairs[l*4+c];
-			struct sr cr = pairs[c*4+r];
-			if (lc.s > cr.s) {//move
-				--ic; if (ic <= i0) break; ir = ic+d[ic-i0];
-				l = ps.nt[ic-1]; c = ps.nt[ic]; r = ps.nt[ir];
-				continue;
-			}
+			struct sr lc = pairs[l*4+c]; struct sr cr = pairs[c*4+r];
+			if (lc.s > cr.s) { MOVE; CR; continue; }
 
 			bind(cr, ic, ir);
 
-			int dc = d[ic-i0] += d[ir-i0];
-			ir = ic+dc; --n;
-			if (ir >= i) {//move if no more r
-				--ic; if (ic <= i0) break;
-				ir = ic+d[ic-i0]; l = ps.nt[ic-1];
-			}
-			c = ps.nt[ic]; r = ps.nt[ir];
+			ir = ic + (d[ic-i0] += d[ir-i0]); --n;
+			if (ir >= i) { MOVE; } CR;
 		}
 	}
 	while (n > 1) {
